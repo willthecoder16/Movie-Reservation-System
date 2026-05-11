@@ -1,8 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedLayout from "./components/ProtectedLayout";
+import AdminPage from "./pages/AdminPage";
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
+import MyReservationsPage from "./pages/MyReservationsPage";
+import ShowtimeBookingPage from "./pages/ShowtimeBookingPage";
 import SignupPage from "./pages/SignupPage";
 
 export default function App() {
@@ -11,14 +14,12 @@ export default function App() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route element={<ProtectedLayout />}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/reservations" element={<MyReservationsPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/showtimes/:showtimeId" element={<ShowtimeBookingPage />} />
+      </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

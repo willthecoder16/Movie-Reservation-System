@@ -68,6 +68,30 @@ class MovieWithShowtimesForDate(BaseModel):
     showtimes: list[ShowtimePublic]
 
 
+class ShowtimeBookingPublic(BaseModel):
+    """Showtime + movie for the public booking UI."""
+
+    id: int
+    movie_id: int
+    screen_id: int
+    starts_at: datetime
+    ends_at: datetime
+    price_cents: int
+    movie: MoviePublic
+
+
+class ShowtimeAdminRow(BaseModel):
+    """Showtime row for admin scheduling table."""
+
+    id: int
+    movie_id: int
+    movie_title: str
+    screen_id: int
+    starts_at: datetime
+    ends_at: datetime
+    price_cents: int
+
+
 class SeatPublic(BaseModel):
     id: int
     row_label: str

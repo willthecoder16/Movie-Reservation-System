@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 
-import { API_BASE, getMoviesByDate, listMovies, me } from "../api";
+import { API_BASE, getMoviesByDate, listMovies } from "../api";
 import "../DashboardPage.css";
 
 function localDateInputValue(d = new Date()) {
@@ -33,9 +33,7 @@ function formatPrice(cents) {
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const { user } = useOutletContext();
 
   const [selectedDate, setSelectedDate] = useState(() => localDateInputValue());
   const [catalog, setCatalog] = useState([]);
@@ -44,39 +42,6 @@ export default function DashboardPage() {
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [moviesError, setMoviesError] = useState("");
   const [brokenPosters, setBrokenPosters] = useState({});
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadUser() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login", { replace: true });
-        return;
-      }
-
-      try {
-        const profile = await me(token);
-        if (isMounted) {
-          setUser(profile);
-          setError("");
-        }
-      } catch {
-        if (!isMounted) return;
-        localStorage.removeItem("token");
-        setError("Session expired. Please log in again.");
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
-    loadUser();
-    return () => {
-      isMounted = false;
-    };
-  }, [navigate]);
 
   useEffect(() => {
     if (!user) return;
@@ -123,22 +88,6 @@ export default function DashboardPage() {
     };
   }, [user]);
 
-  function handleLogout() {
-    localStorage.removeItem("token");
-    navigate("/login", { replace: true });
-  }
-
-  if (loading) return <p>Loading dashboard...</p>;
-
-  if (error) {
-    return (
-      <div>
-        <p>{error}</p>
-        <Link to="/login">Go to Log In</Link>
-      </div>
-    );
-  }
-
   const isAdmin = user?.role === "admin";
 
   return (
@@ -152,18 +101,13 @@ export default function DashboardPage() {
           </p>
           {isAdmin && (
             <p className="admin-note">
-              Admin: create genres, movies, screens, and showtimes via{" "}
+              Admin tools: <Link to="/admin">open admin console</Link> (movies, showtimes, reporting, users) or{" "}
               <a href={`${API_BASE}/docs`} target="_blank" rel="noreferrer">
                 API docs
               </a>
               .
             </p>
           )}
-        </div>
-        <div className="dashboard-actions">
-          <button type="button" onClick={handleLogout}>
-            Log out
-          </button>
         </div>
       </header>
 
@@ -184,7 +128,12 @@ export default function DashboardPage() {
         {catalogError && <div className="error-banner">{catalogError}</div>}
         {!catalogLoading && catalog.length === 0 && !catalogError && (
           <p className="empty-state">
-            No showtimes on this date. Try another day, or add showtimes in the admin API.
+            No showtimes on this date. Try another day, or{" "}
+            {isAdmin ? (
+              <Link to="/admin">add showtimes in the admin console</Link>
+            ) : (
+              "ask an admin to add showtimes."
+            )}
           </p>
         )}
         <div className="movie-grid">
@@ -214,10 +163,23 @@ export default function DashboardPage() {
                 <ul className="showtimes-list">
                   {showtimes.map((st) => (
                     <li key={st.id}>
-                      <span className="showtime-time">{formatShowtime(st.starts_at)}</span>
-                      <span className="showtime-meta">
-                        Screen #{st.screen_id} · {formatPrice(st.price_cents)}
-                      </span>
+                      <Link
+                        to={`/showtimes/${st.id}`}
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          alignItems: "baseline",
+                          justifyContent: "space-between",
+                          gap: "0.5rem",
+                          textDecoration: "none",
+                          color: "inherit",
+                        }}
+                      >
+                        <span className="showtime-time">{formatShowtime(st.starts_at)}</span>
+                        <span className="showtime-meta">
+                          Screen #{st.screen_id} · {formatPrice(st.price_cents)} · Reserve seats →
+                        </span>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -231,6 +193,10 @@ export default function DashboardPage() {
         <h2 id="catalog-heading" className="section-title">
           All movies in catalog
         </h2>
+        <p className="showtime-meta" style={{ marginBottom: "1rem" }}>
+          Showtimes appear under &quot;What&apos;s playing&quot; when you pick a date.{" "}
+          <Link to="/reservations">View your reservations</Link>.
+        </p>
         {moviesError && <div className="error-banner">{moviesError}</div>}
         <div className="movie-grid">
           {allMovies.map((m) => (

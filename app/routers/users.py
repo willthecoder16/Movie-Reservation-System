@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -7,6 +8,14 @@ from app.models import User, UserRole
 from app.schemas.auth import PromoteUserRequest, UserPublic
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("", response_model=list[UserPublic])
+def list_users(
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+) -> list[User]:
+    return list(db.execute(select(User).order_by(User.id)).scalars())
 
 
 @router.patch("/{user_id}/role", response_model=UserPublic)

@@ -1,0 +1,76 @@
+.app-nav {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-nav-inner {
+  max-width: 1126px;
+  margin: 0 auto;
+  padding: 0.65rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.app-nav-brand {
+  font-weight: 700;
+  color: var(--text-h);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.app-nav-brand:hover {
+  color: var(--accent);
+}
+
+.app-nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  flex: 1;
+}
+
+.app-nav-links a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.app-nav-links a:hover {
+  color: var(--accent);
+}
+
+.app-nav-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.app-nav-email {
+  font-size: 0.82rem;
+  color: var(--text);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-nav-logout {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.app-nav-logout:hover {
+  border-color: var(--accent-border);
+}
